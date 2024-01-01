@@ -1,0 +1,7 @@
+{
+  "sysTitle": "toolBox",
+  "dataFile": "card.json",
+  "configFile": "config.json",
+  "setFile": "setting.json",
+  "tagFile": "tag.json"
+}

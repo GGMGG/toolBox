@@ -1,0 +1,68 @@
+{
+	"colors": [
+		{
+			"id": "1",
+			"color": "#1e9fff",
+			"light": "#ecf5ff",
+			"deep": "#0d55fc"
+		},
+		{
+			"id": "2",
+			"color": "#36b368",
+			"light": "#f0f9eb",
+			"deep": "#036129"
+		},
+		{
+			"id": "3",
+			"color": "#f6ad55",
+			"light": "#fdf6ec",
+			"deep": "#834a05"
+		},
+		{
+			"id": "4",
+			"color": "#f56c6c",
+			"light": "#fef0f0",
+			"deep": "#790808"
+		},
+		{
+			"id": "5",
+			"color": "#3963bc",
+			"light": "#ecf5ff",
+			"deep": "#042979"
+		}
+	],
+    "cardSizes": [
+		{
+			"id": "1",
+			"size": "small",
+			"num": "6"
+		},
+		{
+			"id": "2",
+			"size": "middle",
+			"num": "4"
+		},
+		{
+			"id": "3",
+			"size": "large",
+			"num": "2"
+		}
+	],
+	"iconSizes": [
+		{
+			"id": "1",
+			"size": "small",
+			"font": "18"
+		},
+		{
+			"id": "2",
+			"size": "middle",
+			"font": "24"
+		},
+		{
+			"id": "3",
+			"size": "big",
+			"font": "30"
+		}
+	]
+}

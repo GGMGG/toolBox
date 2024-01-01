@@ -1,0 +1,212 @@
+/* :root {
+  --color: #1e9fff;
+  --light-color: #8fcdfd;
+  --deep-color: #0d55fc;
+
+  --slider-handle-size: 14px;
+  --slider-handle-border-radius: 2px;
+  --slider-handle-margin-top: -4px;
+  --slider-track-height: 6px;
+  --slider-track-border-radius: 4px;
+} */
+
+.range-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.range-slider-container {
+  width: 80%;
+}
+
+.range-slider-container>div:first-child {
+  margin-top: 5px;
+  margin-bottom: 20px;
+}
+
+.tick-slider-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+/* .tick-slider-header>h5 {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  font-size: 18px;
+  font-weight: 300;
+  color: #71738b;
+} */
+
+.tick-slider {
+  position: relative;
+  width: 100%;
+}
+
+.tick-slider-value-container {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+  color: #71738b;
+}
+
+.tick-slider-value {
+  position: absolute;
+  top: 0;
+  font-weight: bold;
+  color: var(--color);
+  border-radius: var(--slider-handle-border-radius);
+}
+
+.tick-slider-value>div {
+  animation: bulge 0.3s ease-out;
+}
+
+.tick-slider-background,
+.tick-slider-progress,
+.tick-slider-tick-container {
+  position: absolute;
+  bottom: 5px;
+  left: 0;
+  height: var(--slider-track-height);
+  pointer-events: none;
+  border-radius: var(--slider-track-border-radius);
+  z-index: -1;
+}
+
+.tick-slider-background {
+  width: 100%;
+  background-color: #7a7c93;
+}
+
+.tick-slider-progress {
+  background-color: var(--color);
+}
+
+.tick-slider-tick-container {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 calc(var(--slider-handle-size) / 2);
+}
+
+.tick-slider-tick {
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background-color: white;
+}
+
+.tick-slider-label {
+  opacity: 0.85;
+  transition: opacity 0.1s ease;
+}
+
+.tick-slider-label.hidden {
+  opacity: 0;
+}
+
+@keyframes bulge {
+  0% {
+    transform: scale(1);
+  }
+
+  25% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+input[type="range"] {
+  appearance: none;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  outline: none;
+  margin: 5px 0;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  border: none;
+}
+
+input[type="range"]:focus {
+  outline: none;
+}
+
+input[type="range"]::-moz-focus-outer {
+  border: 0;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: var(--slider-handle-size);
+  height: var(--slider-handle-size);
+  background: var(--deep-color);
+  border-radius: var(--slider-handle-border-radius);
+  cursor: pointer;
+  margin-top: var(--slider-handle-margin-top);
+  -webkit-transform: scale(1);
+  transform: scale(1);
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+input[type="range"]:hover::-webkit-slider-thumb,
+input[type="range"]:focus::-webkit-slider-thumb {
+  transform: scale(1.2);
+}
+
+input[type="range"]::-moz-range-thumb {
+  appearance: none;
+  width: var(--slider-handle-size);
+  height: var(--slider-handle-size);
+  background: var(--deep-color);
+  border: none;
+  border-radius: var(--slider-handle-border-radius);
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+input[type="range"]:hover::-moz-range-thumb,
+input[type="range"]:focus::-moz-range-thumb {
+  transform: scale(1.2);
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: var(--slider-track-height);
+  cursor: pointer;
+  background: none;
+  border-radius: var(--slider-track-border-radius);
+  -webkit-border-radius: var(--slider-track-border-radius);
+  -moz-border-radius: var(--slider-track-border-radius);
+  -ms-border-radius: var(--slider-track-border-radius);
+  -o-border-radius: var(--slider-track-border-radius);
+}
+
+input[type="range"]::-moz-range-track {
+  width: 100%;
+  height: var(--slider-track-height);
+  cursor: pointer;
+  background: none;
+  border-radius: var(--slider-track-border-radius);
+}
+
+input[type="range"]:focus::-webkit-slider-runnable-track {
+  background: none;
+}
+
+input[type="range"]:active::-webkit-slider-runnable-track {
+  background: none;
+}

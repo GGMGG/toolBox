@@ -1,0 +1,423 @@
+layui.define(['jquery', 'element'], function(exports) {
+	"use strict";
+
+    var MOD_NAME = 'rlnotify',
+        $ = layui.jquery,
+		element = layui.element;
+
+    function _typeof(obj) {
+        "@babel/helpers - typeof";
+        if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+            _typeof = function _typeof(obj) {
+                return typeof obj;
+            };
+        } else {
+            _typeof = function _typeof(obj) {
+                return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+            };
+        }
+        return _typeof(obj);
+    }
+
+    function c(args, children) {
+        var el = document.createElement("div");
+
+        for (var key in args) {
+            var element = args[key];
+
+            if (key == "className") {
+                key = "class";
+                el.setAttribute(key, element);
+            } else if (key[0] == "_") {
+                el.addEventListener(key.slice(1), element);
+            }
+        }
+        if (typeof children == "string") {
+            el.innerHTML = children;
+        } else if (_typeof(children) == "object" && children.tagName) {
+            el.appendChild(children);
+        } else if (children) {
+            for (var i = 0; i < children.length; i++) {
+                var child = children[i];
+                el.appendChild(child);
+            }
+        }
+
+        return el;
+    }
+
+    function addAnimationEnd(el, fn) {
+        ["a", "webkitA"].forEach(function (prefix) {
+            var name = prefix + "nimationEnd";
+            el.addEventListener(name, function () {
+                fn();
+            });
+        });
+    }
+
+    function css(el, css) {
+        for (var key in css) {
+            el.style[key] = css[key];
+        }
+
+        if (el.getAttribute("style") === "") {
+            el.removeAttribute("style");
+        }
+    }
+
+    function addClass(el, s) {
+        var c = el.className || "";
+
+        if (!hasClass(c, s)) {
+            var arr = c.split(/\s+/);
+            arr.push(s);
+            el.className = arr.join(" ");
+        }
+    }
+
+    function hasClass(c, s) {
+        return c.indexOf(s) > -1 ? !0 : !1;
+    }
+
+    function removeClass(el, s) {
+        var c = el.className || "";
+
+        if (hasClass(c, s)) {
+            var arr = c.split(/\s+/);
+            var i = arr.indexOf(s);
+            arr.splice(i, 1);
+            el.className = arr.join(" ");
+        }
+
+        if (el.className === "") {
+            el.removeAttribute("class");
+        }
+    }
+
+    var initArgs = {
+        elem:"body", //默认显示在body,可以指定class或id
+        msg: "", //文字内容
+        position: 'topCenter', // bottomRight, bottomLeft, topRight, topLeft, topCenter, bottomCenter, vcenter
+        duration: 3000, //默认3秒关闭
+        showClose: true, //显示关闭按钮
+        shadow:false
+    };
+    var positionB=['bottomLeft','bottomCenter','bottomRight'];
+
+    function initConfig(obj, type) {
+        var args = {};
+        for (var key in initArgs) {
+            args[key] = initArgs[key];
+        }
+
+        var posArr = ["bottomRight", "bottomLeft", "topRight", "topLeft", "topCenter", "bottomCenter", "vcenter"];
+        for (var i = 0; i < obj.length; i++) {
+            var it = obj[i];
+            if (it !== undefined) {
+                if (typeof it == "string" || _typeof(it) === "object") {
+                    if (posArr.indexOf(it) > -1) {
+                        args.position = it;
+                    } else if(it.substring(0,1)=="."||it.substring(0,1)=="#"){
+                        args.elem=it;
+                    }else if(it=="shadow"){
+                        args.shadow=true;
+                    }else {
+                        args.msg = it;
+                    }
+
+                } else if (typeof it == "boolean") {
+                    args.showClose = it;
+                } else if (typeof it == "function") {
+                    args.onClose = it;
+                } else if (typeof it == "number") {
+                    args.duration = it;
+                } else if (typeof it == "number") {
+                    args.duration = it;
+                }
+            }
+        }
+
+        args.type = type;
+        return createMsgEl(args);
+    }
+
+    var msgWrappers = new Array();
+
+    function createMsgEl(args) {
+        var _msgWrapper;
+        var type = args.type,
+            elem = args.elem,
+            duration = args.duration,
+            msg = args.msg,
+            position = args.position,
+            closable = args.showClose,
+            shadow = args.shadow,
+            onClose = args.onClose;
+        var iconObj = getIconObj();
+
+        if (document.getElementsByClassName(position)[0]) {
+            _msgWrapper = document.getElementsByClassName(position)[0];
+        } else {
+            _msgWrapper = c({
+                className: "notify-msg-stage " + position
+            });
+            msgWrappers.push(_msgWrapper);
+        }
+
+        if (type === "loading") {
+            msg = msg === "" ? "正在加载，请稍后" : msg;
+            closable = false; //loading不显示关闭按钮
+        }
+
+        var el,an;
+
+        if(positionB.indexOf(position)!=-1){
+            if(type=="alert" || type =="confirm"){
+                an="bounceIn";
+            }else{
+                an="notify-bottom notify-msg-fade-in-b";
+            }
+            el = c({
+                className: "notify-msg-wrapper"
+            }, [c({
+                className: "notify-msg " + an + " notify-msg-" + type
+            }, [c({
+                className: "notify-msg-icon"
+            }, iconObj[type]), c({
+                className: "notify-msg-content"
+            }, msg), c({
+                className: "notify-msg-wait " + (closable ? "notify-msg-pointer" : ""),
+                _click: function _click() {
+                    if (closable) {
+                        closeFlag = true; //点击关闭按钮标志
+                        flag = false; //正常关闭标志
+                        closeMsg(el, onClose, _msgWrapper,shadow);
+                    }
+                }
+            }, getMsgRight(closable,type))])]);
+        }else{
+            if(type=="alert" || type =="confirm"){
+                an="bounceIn";
+            }else{
+                an="notify-msg-fade-in";
+            }
+            el = c({
+                className: "notify-msg-wrapper"
+            }, [c({
+                className: "notify-msg " + an + " notify-msg-" + type
+            }, [c({
+                className: "notify-msg-icon"
+            }, iconObj[type]), c({
+                className: "notify-msg-content"
+            }, msg), c({
+                className: "notify-msg-wait " + (closable ? "notify-msg-pointer" : ""),
+                _click: function _click() {
+                    if (closable) {
+                        closeFlag = true; //点击关闭按钮标志
+                        flag = false; //正常关闭标志
+                        closeMsg(el, onClose, _msgWrapper,shadow);
+                    }
+                }
+            }, getMsgRight(closable,type))])]);
+        }
+
+        var anm = el.querySelector(".notify-msg__circle");
+
+        if (anm) {
+            css(anm, {
+                animation: "notify-msg_" + type + " " + duration + "ms linear"
+            });
+
+            if ("onanimationend" in window) {
+                addAnimationEnd(anm, function () {
+                    closeMsg(el, onClose, _msgWrapper,shadow);
+                });
+            } else {
+                setTimeout(function () {
+                    closeMsg(el, onClose, _msgWrapper,shadow);
+                }, duration);
+            }
+        }
+
+        if (type != "loading" && type != "alert" && type != "confirm") {
+            setTimeout(function () {
+                closeMsg(el, onClose, _msgWrapper,shadow);
+            }, duration);
+        }
+        //遮罩
+        if(shadow &&!document.querySelector(".notify-modal")){
+            var shadenode=document.createElement("div");
+            if(shadow){
+                shadenode.className="notify-modal";
+            }else{
+                shadenode.className="notify-modal notify-none";
+            }
+
+            document.querySelector("body").appendChild(shadenode);
+        }
+        if (!_msgWrapper.children.length) {
+            if(elem!=="body"){
+                var _pos=getComputedStyle(document.querySelector(elem)).position;
+                if(_pos=="static"||_pos==""){
+                    document.querySelector(elem).style.position="relative";
+                }
+
+                _msgWrapper.style.position = "absolute";
+            }else{
+                _msgWrapper.style.position = "fixed";
+            }
+            document.querySelector(elem).appendChild(_msgWrapper);
+        }
+        _msgWrapper.appendChild(el);
+        if(type=="confirm"){
+            var btnCancel=document.createElement("button");//'<button type="button" class="btnCancel">取 消</button>';
+            var textNode=document.createTextNode("取 消");
+            btnCancel.appendChild(textNode);
+            btnCancel.className="btnCancel";
+            btnCancel.onclick=function(){
+                closeMsg(el,'', _msgWrapper,shadow);
+            }
+
+            document.querySelector(".notify-msg-confirm").appendChild(btnCancel);
+        }
+        css(el, {
+            height: el.offsetHeight + "px"
+        });
+        setTimeout(function () {
+            if(positionB.indexOf(position)!=-1){
+                removeClass(el.children[0], "notify-msg-fade-in-b");
+            }else{
+                removeClass(el.children[0], "notify-msg-fade-in");
+            }
+
+        }, 300);
+
+        if (type == "loading") {
+            return function () {
+                closeMsg(el, onClose, _msgWrapper,shadow);
+            };
+        }
+    }
+
+    function getMsgRight(showClose,type) {
+        if (showClose) {
+            if(type=="alert" || type=="confirm"){
+                return "<button type=\"button\" class=\"btnOk\">确 定</button>"
+            }else{
+                return "\n    <svg class=\"notify-msg-close\" viewBox=\"0 0 1024 1024\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" p-id=\"5514\"><path d=\"M810 274l-238 238 238 238-60 60-238-238-238 238-60-60 238-238-238-238 60-60 238 238 238-238z\" p-id=\"5515\"></path></svg>\n    ";
+            }
+        }
+    }
+
+    var flag = true; //正常关闭标志
+    var closeFlag = false;//点击关闭按钮标志
+
+    function closeMsg(el, cb, _msgWrapper,shadow) {
+        if (!el) return;
+        if(hasClass(el.children[0].className,"notify-bottom")){
+            addClass(el.children[0], "notify-msg-fade-out-b");
+        }else if(hasClass(el.children[0].className,"bounceIn")){
+            addClass(el.children[0], "bounceOut");
+        }else{
+            addClass(el.children[0], "notify-msg-fade-out");
+        }
+
+        if(shadow && document.querySelector(".notify-modal")){
+            document.querySelector("body").removeChild(document.querySelector(".notify-modal"));
+        }
+
+        if (closeFlag) { //点击关闭按钮
+            closeFlag = false;
+            cb && cb(); //回调方法
+        } else {
+            if (flag) {//正常关闭，全局变量
+                cb && cb();
+            } else {
+                flag = true
+                // return;
+            }
+        }
+
+        setTimeout(function () {
+
+            if (!el) return;
+            var has = false;
+            if (_msgWrapper) {
+                for (var i = 0; i < _msgWrapper.children.length; i++) {
+                    if (_msgWrapper.children[i] && _msgWrapper.children[i] === el) {
+                        has = true;
+                    }
+                }
+                has && removeChild(el);
+                el = null;
+
+                if (!_msgWrapper.children.length) {
+                    has && removeChild(_msgWrapper);
+                }
+
+            }
+
+        }, 300);
+    }
+
+    function getIconObj() {
+        return {
+            info: "\n    <svg t=\"1609810636603\" viewBox=\"0 0 1024 1024\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" p-id=\"3250\"><path d=\"M469.333333 341.333333h85.333334v469.333334H469.333333z\" fill=\"#ffffff\" p-id=\"3251\"></path><path d=\"M469.333333 213.333333h85.333334v85.333334H469.333333z\" fill=\"#ffffff\" p-id=\"3252\"></path><path d=\"M384 341.333333h170.666667v85.333334H384z\" fill=\"#ffffff\" p-id=\"3253\"></path><path d=\"M384 725.333333h256v85.333334H384z\" fill=\"#ffffff\" p-id=\"3254\"></path></svg>\n    ",
+            success: "\n    <svg t=\"1609781242911\" viewBox=\"0 0 1024 1024\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" p-id=\"1807\"><path d=\"M455.42 731.04c-8.85 0-17.75-3.05-24.99-9.27L235.14 553.91c-16.06-13.81-17.89-38.03-4.09-54.09 13.81-16.06 38.03-17.89 54.09-4.09l195.29 167.86c16.06 13.81 17.89 38.03 4.09 54.09-7.58 8.83-18.31 13.36-29.1 13.36z\" p-id=\"1808\" fill=\"#ffffff\"></path><path d=\"M469.89 731.04c-8.51 0-17.07-2.82-24.18-8.6-16.43-13.37-18.92-37.53-5.55-53.96L734.1 307.11c13.37-16.44 37.53-18.92 53.96-5.55 16.43 13.37 18.92 37.53 5.55 53.96L499.67 716.89c-7.58 9.31-18.64 14.15-29.78 14.15z\" p-id=\"1809\" fill=\"#ffffff\"></path></svg>\n    ",
+            warning: "\n    <svg t=\"1609776406944\" viewBox=\"0 0 1024 1024\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" p-id=\"18912\"><path d=\"M468.114286 621.714286c7.314286 21.942857 21.942857 36.571429 43.885714 36.571428s36.571429-14.628571 43.885714-36.571428L585.142857 219.428571c0-43.885714-36.571429-73.142857-73.142857-73.142857-43.885714 0-73.142857 36.571429-73.142857 80.457143l29.257143 394.971429zM512 731.428571c-43.885714 0-73.142857 29.257143-73.142857 73.142858s29.257143 73.142857 73.142857 73.142857 73.142857-29.257143 73.142857-73.142857-29.257143-73.142857-73.142857-73.142858z\" p-id=\"18913\" fill=\"#ffffff\"></path></svg>\n    ",
+            error: "\n    <svg t=\"1609810716933\" viewBox=\"0 0 1024 1024\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" p-id=\"5514\"><path d=\"M810 274l-238 238 238 238-60 60-238-238-238 238-60-60 238-238-238-238 60-60 238 238 238-238z\" p-id=\"5515\" fill=\"#ffffff\"></path></svg>\n    ",
+            loading: "\n    <div class=\"notify-msg_loading\">\n    <svg class=\"notify-msg-circular\" viewBox=\"25 25 50 50\">\n      <circle class=\"notify-msg-path\" cx=\"50\" cy=\"50\" r=\"20\" fill=\"none\" stroke-width=\"4\" stroke-miterlimit=\"10\"/>\n    </svg>\n    </div>\n    "
+        };
+    }
+
+    function removeChild(el) {
+        el && el.parentNode.removeChild(el);
+    }
+
+    function _destroyAll() {
+        for (var j = 0; j < msgWrappers.length; j++) {
+            for (var i = 0; i < msgWrappers[j].children.length; i++) {
+                var element = msgWrappers[j].children[i];
+                closeMsg(element, '', msgWrappers[j]);
+            }
+        }
+    }
+
+    var rlnotify = {
+        info: function info() {
+            initConfig(arguments, "info");
+        },
+        success: function success() {
+            initConfig(arguments, "success");
+        },
+        warning: function warning() {
+            initConfig(arguments, "warning");
+        },
+        error: function error() {
+            initConfig(arguments, "error");
+        },
+        loading: function loading() {
+            return initConfig(arguments, "loading");
+        },
+        alert: function loading() {
+            return initConfig(arguments, "alert");
+        },
+        confirm: function loading() {
+            return initConfig(arguments, "confirm");
+        },
+        destroyAll: function destroyAll() {
+            _destroyAll();
+        },
+        config: function config(obj) {
+            for (var key in obj) {
+                if (Object.hasOwnProperty.call(obj, key)) {
+                    if (obj[key] !== undefined) {
+                        initArgs[key] = obj[key];
+                    }
+                }
+            }
+        }
+    }
+
+    exports(MOD_NAME, rlnotify);
+});

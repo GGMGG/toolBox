@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1, user-scalable=no" />
+    <title id="title"></title>
+    <link rel="stylesheet" id="layui-theme" href="../plugins/extends/css/extend.css" />
+    <link rel="stylesheet" href="../plugins/index/css/index.css" />
+  </head>
+
+  <body class="layui-container">
+    <!-- 菜单 -->
+    <!-- 卡片面板 -->
+    <div class="layui-card">
+      <div class="layui-card-body">
+        <form class="layui-form" name="toolForm" style="padding: 0 0 0 10px" onkeydown="if(event.keyCode==13){return false;}" onkeyup="if(event.keyCode==13) toolBarEvent.doSearch(null);" lay-filter="tool-form-filter">
+          <!-- 工具条 -->
+          <div class="layui-form-item">
+            <!-- 搜索 -->
+            <div class="layui-col-md5 layui-col-md-offset3">
+              <div style="width: 100%">
+                <div class="layui-input-inline" style="width: 160px">
+                  <input type="radio" value="1" checked title="本地" name="searchtype" lay-filter="searchtype-radio-filter" />
+                  <input type="radio" value="2" title="引擎" name="searchtype" lay-filter="searchtype-radio-filter" />
+                </div>
+                <div class="layui-input-inline" style="width: 60%">
+                  <input type="text" class="layui-input layui-input-color" placeholder="请输入名称进行搜索" maxlength="300" id="searchName" lay-affix="search" lay-filter="search" />
+                </div>
+              </div>
+            </div>
+            <!-- 操作按钮 -->
+            <div class="layui-inline layui-btn-container layui-act-btn-group" style="float: right">
+              <button type="submit" class="layui-btn layui-btn-primary layui-border-color layui-btn-sm" lay-submit lay-filter="data-add-btn" title="新增">
+                <i class="layui-icon layui-icon-addition"></i>
+              </button>
+              <button type="submit" class="layui-btn layui-btn-primary layui-border-color layui-btn-sm" lay-submit lay-filter="data-edit-btn" title="编辑" data-type="1" id="edidBtn">
+                <i class="layui-icon layui-icon-edit"></i>
+              </button>
+              <button type="submit" class="layui-btn layui-btn-primary layui-border-color layui-btn-sm" lay-submit lay-filter="data-reload-btn" title="刷新">
+                <i class="layui-icon layui-icon-refresh"></i>
+              </button>
+              <button type="button" class="layui-btn layui-btn-primary layui-border-color layui-btn-sm" lay-submit lay-filter="tag-btn" title="标签" id="tagBtn">
+                <i class="layui-icon layui-icon-note"></i>
+              </button>
+              <button type="button" class="layui-btn layui-btn-primary layui-border-color layui-btn-sm" lay-submit lay-filter="mode-btn" id="modeBtn" title="深色">
+                <i class="layui-icon layui-icon-moon" id="modeIcon"></i>
+              </button>
+              <button type="button" class="layui-btn layui-btn-primary layui-border-color layui-btn-sm" lay-submit lay-filter="setting-btn" title="设置">
+                <i class="layui-icon layui-icon-set-fill"></i>
+              </button>
+            </div>
+          </div>
+          <!-- 标签条 -->
+          <div class="layui-form-item">
+            <div class="layui-btn-container layui-col-md10 layui-col-md-offset1 rltag tag-div" id="cardTagDiv" lay-filter="cardTag" lay-allowclose="true" lay-newTag="true"></div>
+          </div>
+        </form>
+        <!-- 卡片主体 -->
+        <div id="cardTable"></div>
+      </div>
+    </div>
+    <!-- 卡片编辑表单 -->
+    <div class="layer-right" style="display: none" id="cardFormDrawer">
+      <form class="layui-form" lay-filter="jsonForm">
+        <input type="hidden" name="id" />
+        <input type="hidden" name="sort" />
+        <input type="hidden" name="acttype" required lay-verify="required" />
+        <h1 class="site-h1" id="formTitle"></h1>
+        <div class="layui-form-item">
+          <label class="layui-form-label"><span class="requiredTag">*&nbsp;&nbsp;</span>类型</label>
+          <div class="layui-input-inline">
+            <input type="radio" name="cardtype" value="web" title="web" checked lay-filter="cardtype-radio-filter" />
+            <input type="radio" name="cardtype" value="exeApp" title="exeApp" lay-filter="cardtype-radio-filter" />
+            <input type="radio" name="cardtype" value="local" title="local" lay-filter="cardtype-radio-filter" />
+            <input type="radio" name="cardtype" value="localServe" title="localServe" lay-filter="cardtype-radio-filter" />
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label"><span class="requiredTag">*&nbsp;&nbsp;</span>名称</label>
+          <div class="layui-input-inline">
+            <input type="text" name="name" required lay-verify="required" placeholder="请输入名称" autocomplete="off" class="layui-input layui-input-color" maxlength="24" lay-affix="clear" />
+          </div>
+        </div>
+        <div class="layui-form-item" id="cardUrlDiv">
+          <label class="layui-form-label"><span class="requiredTag">*&nbsp;&nbsp;</span>地址</label>
+          <div class="layui-input-inline">
+            <input type="text" name="url" id="weburl" required lay-verify="required|url" placeholder="请输入地址" autocomplete="off" class="layui-input layui-input-color" maxlength="150" lay-affix="clear" />
+          </div>
+        </div>
+        <div class="layui-form-item" style="display: none" id="cardExeUrlDiv">
+          <label class="layui-form-label"><span class="requiredTag">*&nbsp;&nbsp;</span>EXE路径</label>
+          <div class="layui-input-inline">
+            <label for="fileChoose" class="layui-btn layui-btn-primary layui-border-color">选择文件</label>
+            <input id="fileChoose" type="file" style="display: none" />
+            <input type="text" name="exeUrl" id="exeUrl" lay-verify="required|exeApp" placeholder="请选择文件" autocomplete="off" class="layui-input layui-input-color" maxlength="500" readonly style="margin-top: 10px" />
+          </div>
+        </div>
+        <div class="layui-form-item" style="display: none" id="localUploadDiv">
+          <label class="layui-form-label"><span class="requiredTag">*&nbsp;&nbsp;</span>文件地址</label>
+          <div class="layui-input-inline">
+            <label for="filePathChoose" class="layui-btn layui-btn-primary layui-border-color">选择文件夹</label>
+            <input id="filePathChoose" type="file" style="display: none" webkitdirectory />
+            <input type="text" name="localurl" id="localurl" lay-verify="required" placeholder="请选择文件夹" autocomplete="off" class="layui-input layui-input-color" maxlength="500" readonly style="margin-top: 10px" />
+            <input type="text" name="index" id="index" placeholder="请输入载入页面，默认为index.html" autocomplete="off" class="layui-input layui-input-color" maxlength="24" value="index.html" style="margin-top: 10px" />
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label"><span class="requiredTag">*&nbsp;&nbsp;</span>选择图标</label>
+          <div class="layui-input-inline" id="iconPickerDiv">
+            <input type="text" name="icon" id="iconPicker" required lay-verify="required" lay-filter="iconPicker" />
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">选择标签</label>
+          <div class="layui-input-inline" id="cardTagsSelect"></div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+          <label class="layui-form-label">描述</label>
+          <div class="layui-input-inline">
+            <textarea name="remark" placeholder="请输入描述" class="layui-textarea layui-textarea-color" maxlength="50" lay-affix="clear"></textarea>
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <div class="layui-input-block">
+            <button class="layui-btn layui-btn-radius layui-btn-primary layui-border-color layui-btn-fluid" lay-submit lay-filter="form-save" id="saveJson">保存</button>
+          </div>
+        </div>
+      </form>
+    </div>
+    <!-- 系统设置抽屉 -->
+    <div class="layer-right" style="display: none" id="setFormDrawer"></div>
+  </body>
+  <script src="../plugins/render/render.js"></script>
+  <script src="../plugins/layui/layui.js"></script>
+  <script src="../plugins/extends/extend.js"></script>
+  <script src="../plugins/extends/xm-select.js"></script>
+  <script src="../plugins/index/index.js"></script>
+</html>
